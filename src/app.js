@@ -1,30 +1,107 @@
+// const express = require('express');
+// const app = express();
+// const { adminAuth } = require('./middlewares/auth.js');
+// const { userAuth } = require('./middlewares/auth.js')
+
+// // Handle Auth middleware  for any method 
+// app.use("/admin",adminAuth)
+
+// app.get("/admin/alldata",(req,res)=>{
+//     const token = "xyz"; // req.body?.token
+//     const isAdminAuthorized = token === "xyz";
+//     if(isAdminAuthorized){
+//         res.send("All the userData")
+//     }
+//     else{
+//         res.status(401).send("Unauthorized request !!");
+//     }
+// })
+
+// app.use("/", (req, res, next) => {
+//     // res.send("Handling the / routing ");
+//     next();
+// });
+
+// // app.use("/user", userAuth) we can do like this and also like the below 
+
+// app.get("/user",userAuth, 
+// (req, res, next) => {
+//     // res.send("Handling the /user routing ");
+//     next();
+// },
+// (req, res, next) => {
+//     // res.send("Handling the /user routing2 ");
+//     next();
+// },
+// (req, res, next) => {
+//     res.send("Handling the /user routing3 ");
+//     next();
+// });
+
+// app.listen(3000, () => {
+//     console.log('Server is running on port 3000');
+// });
+
+
 const express = require('express');
-
 const app = express();
+const { adminAuth } = require('./middlewares/auth.js');
+const { userAuth } = require('./middlewares/auth.js');
 
-// app.use("/test",(req, res)=>{
-//     res.send("Hello from the Test side! This is the Test route. ");
-// })
-// app.use("/home",(req, res)=>{
-//     res.send("Hello from the Home side! This is the Home route.");
-// })
+app.use(express.json());
 
-// this only call when the user use get method with user route ( to get the information of the user)
-app.get("/user", (req,res)=>{
-    res.send({firstName:"Aditya", lastName:"Sharma"})
-})
+// Admin routes with auth middleware
+app.use("/admin", adminAuth);
 
-// this is only call when the user post method with user route ( to post some details to the DB)
-app.post("/user", (req,res)=>{
-    // Logic for the Saving dataBase
-    res.send("The data is succefully save in the database!!")
-})
-
-app.use((req, res)=>{
-    res.send("Hello from the Server side! This is the default response.");
-})
-
-app.listen(3000,()=>{
-    console.log('Server is running on port 3000'
-    );  
+app.get("/admin/alldata", (req, res, next) => {
+    try {
+        const token = "xyz"; // Normally this should come from req.headers / req.body
+        const isAdminAuthorized = token === "xyz";
+        if (isAdminAuthorized) {
+            res.send("All the userData");
+        } else {
+            const error = new Error("Unauthorized request !!");
+            error.status = 401;
+            throw error;
+        }
+    } catch (err) {
+        next(err); // Forward error to the centralized error handler
+    }
 });
+
+// General middleware for root
+app.use("/", (req, res, next) => {
+    next();
+});
+
+// User route with middleware + handlers
+app.get("/user", userAuth,
+    (req, res, next) => {
+        next();
+    },
+    (req, res, next) => {
+        next();
+    },
+    (req, res, next) => {
+        try {
+            res.send("Handling the /user routing3");
+        } catch (err) {
+            next(err);
+        }
+    }
+);
+
+// Centralized Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error(`[ERROR] ${err.message}`);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "Internal Server Error"
+    });
+});
+
+// Start the server
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+});
+
