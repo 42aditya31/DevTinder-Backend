@@ -54,33 +54,30 @@ app.get("/feed", async (req, res) => {
 });
 
 // DELETE API
-app.delete("/user", async (req,res)=>{
-    const userId = req.body.userId;
-    try{
-         const user = await User.findByIdAndDelete(userId)
-         res.send("User delete Successfully !!! ")
-        //  const user = await User.findByIdAndDelete({_id:userId}) //You can also use this to delete the document by id 
-    }catch (error) {
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndDelete(userId);
+    res.send("User delete Successfully !!! ");
+    //  const user = await User.findByIdAndDelete({_id:userId}) //You can also use this to delete the document by id
+  } catch (error) {
     console.error("Error fetching user:", err);
     res.status(500).send("Internal Server Error");
   }
-
-})
+});
 
 // UPDATE API
-app.patch("/user", async(req,res)=>{
-    const userId = req.body.userId;
-    const data = req.body;
-    try{
-        await User.findByIdAndUpdate({_id:userId},data)
-        res.send("User Updated Successfully!");
-    }catch (error) {
+app.patch("/user", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
+  try {
+    await User.findByIdAndUpdate({ _id: userId }, data);
+    res.send("User Updated Successfully!");
+  } catch (error) {
     console.error("Error fetching user:", err);
     res.status(500).send("Internal Server Error");
   }
-
-})
-
+});
 
 connectDatabase()
   .then(() => {
