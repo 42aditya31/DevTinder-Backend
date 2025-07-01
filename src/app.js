@@ -4,22 +4,24 @@ const connectDatabase = require("./config/database.js"); // Import the database 
 const User = require("./models/user.js"); // Import the User model
 require("dotenv").config();
 
-
 app.post("/signup", async (req, res) => {
-    const userObject = {
-        firstName:"Nandan",
-        lastName:"Jogi",
-        email:"nandan@007gmail.com",
-        password:"Nandan@000",
-    }
-     // Create a new user instance
-    // and save it to the database   
-    const user = new User(userObject);
-   await user.save();
-   res.send("User created successfully");
+  const userObject = {
+    firstName: "Nandan",
+    lastName: "Jogi",
+    email: "nandan@007gmail.com",
+    password: "Nandan@000",
+  };
+  // Create a new user instance
+  // and save it to the database
+  const user = new User(userObject);
+  try {
+    await user.save();
+    res.send("User created successfully");
+  } catch (err) {
+    console.error("Error creating user:", err);
+    res.status(500).send("Internal Server Error");
+  }
 });
-
-
 
 connectDatabase()
   .then(() => {
