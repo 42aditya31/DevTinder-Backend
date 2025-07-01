@@ -3,14 +3,13 @@ const app = express();
 const connectDatabase = require("./config/database.js"); // Import the database connection
 const User = require("./models/user.js"); // Import the User model
 require("dotenv").config();
+app.use(express.json());
 
+// API to add the user
 app.post("/signup", async (req, res) => {
-  const userObject = {
-    firstName: "Nandan",
-    lastName: "Jogi",
-    email: "nandan@007gmail.com",
-    password: "Nandan@000",
-  };
+  // console.log(req.body)
+
+  const userObject = req.body;
   // Create a new user instance
   // and save it to the database
   const user = new User(userObject);
@@ -19,6 +18,37 @@ app.post("/signup", async (req, res) => {
     res.send("User created successfully");
   } catch (err) {
     console.error("Error creating user:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+//API to get the user by email
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.email;
+  try {
+    const users = await User.find({ email: userEmail });
+    if (users.length === 0) {
+      res.status(404).send(" User not Found ");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// API to get all Users
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({});
+    if (!users) {
+      res.status(404).send(" User not Found ");
+    } else {
+      res.send(users);
+    }
+  } catch (error) {
+    console.error("Error fetching user:", err);
     res.status(500).send("Internal Server Error");
   }
 });
