@@ -72,7 +72,7 @@ app.patch("/user", async (req, res) => {
   const data = req.body;
   try {
     await User.findByIdAndUpdate({ _id: userId }, data);
-    res.send("User Updated Successfully!");
+    runValidators: true, res.send("User Updated Successfully!");
   } catch (error) {
     console.error("Error fetching user:", err);
     res.status(500).send("Internal Server Error");
