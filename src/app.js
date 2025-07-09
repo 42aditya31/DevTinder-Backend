@@ -1,7 +1,10 @@
 const express = require("express");
+
+const { validateSignUpData } = require("./utils/validation.js");
 const app = express();
 const connectDatabase = require("./config/database.js"); // Import the database connection
 const User = require("./models/user.js"); // Import the User model
+const bcrypt = require("bcrypt");
 require("dotenv").config();
 app.use(express.json());
 
@@ -24,12 +27,22 @@ app.use(express.json());
 //   }
 // });
 
-
 app.post("/signup", async (req, res) => {
   const userObject = req.body;
 
   try {
-    // 1️⃣ Check if the email is already in use
+    // Validation of the data :
+    validateSignUpData(req);
+
+    // Encrypt the password :
+
+    const {firstName, lastName, email, password,age } = req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+
+
+    // 1 Check if the email is already in use
     const existingUser = await User.findOne({ email: userObject.email });
     if (existingUser) {
       return res.status(400).json({
@@ -38,8 +51,15 @@ app.post("/signup", async (req, res) => {
       });
     }
 
-    // 2️⃣ Create new user if email doesn't exist
-    const user = new User(userObject);
+    // 2 Create new user if email doesn't exist
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+      age
+
+    });
     await user.save();
 
     res.status(201).json({
@@ -54,8 +74,6 @@ app.post("/signup", async (req, res) => {
     });
   }
 });
-
-
 
 //API to get the user by email
 app.get("/user", async (req, res) => {

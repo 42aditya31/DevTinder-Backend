@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": " Devtinder Backend - A backend service for Devtinder, a platform connecting developers with projects.",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "mongoose": "^8.16.1",
