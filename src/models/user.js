@@ -48,6 +48,19 @@ const userSchema = new mongoose.Schema(
     skills: {
       type: [String],
       default: [],
+      validate: {
+        validator: function (skillsArray) {// In place of this i can also do something like file :- app.js line number:- 83 
+          return (
+            Array.isArray(skillsArray) &&
+            skillsArray.length <= 10 &&
+            skillsArray.every(
+              (skill) => typeof skill === "string" && skill.trim() !== ""
+            )
+          );
+        },
+        message:
+          "Each skill must be a non-empty string, and total skills must not exceed 10.",
+      },
     },
   },
   {
@@ -58,19 +71,3 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
-
-
-//custom Validation Functions :
-
-// validate: {
-//         validator: function (skillsArray) {
-//           // Each skill must be a non-empty string, and no more than 10 total
-//           return (
-//             Array.isArray(skillsArray) &&
-//             skillsArray.length <= 10 &&
-//             skillsArray.every((skill) => typeof skill === "string" && skill.trim() !== "")
-//           );
-//         },
-//         message:
-//           "Each skill must be a non-empty string and total skills must not exceed 10.",
-//       },
