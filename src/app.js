@@ -6,21 +6,56 @@ require("dotenv").config();
 app.use(express.json());
 
 // API to add the user
-app.post("/signup", async (req, res) => {
-  // console.log(req.body)
+// app.post("/signup", async (req, res) => {
+//   // console.log(req.body)
+//   const userObject = req.body;
+//   // Create a new user instance
+//   // and save it to the database
+//   const user = new User(userObject);
+//   try {
+//     await user.save();
+//     res.send("User created successfully");
+//   } catch (err) {
+//     console.error("Error creating user:", err);
+//     res.status(500).json({
+//       success: false,
+//       error: err.message || "Internal Server Error",
+//     });
+//   }
+// });
 
+
+app.post("/signup", async (req, res) => {
   const userObject = req.body;
-  // Create a new user instance
-  // and save it to the database
-  const user = new User(userObject);
+
   try {
+    // 1️⃣ Check if the email is already in use
+    const existingUser = await User.findOne({ email: userObject.email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: "Email is already registered. Please use a different one.",
+      });
+    }
+
+    // 2️⃣ Create new user if email doesn't exist
+    const user = new User(userObject);
     await user.save();
-    res.send("User created successfully");
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+    });
   } catch (err) {
     console.error("Error creating user:", err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      success: false,
+      error: err.message || "Internal Server Error",
+    });
   }
 });
+
+
 
 //API to get the user by email
 app.get("/user", async (req, res) => {

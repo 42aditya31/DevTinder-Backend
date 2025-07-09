@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator")
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,10 +19,20 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      validate(value){
+        if(!validator.isEmail(value)){
+          throw new Error("Nice try, but that email belongs in a sci-fi movie. Let’s get a real one.")
+        }
+      }
     },
     password: {
       type: String,
       required: true,
+      validate(value){
+        if(!validator.isStrongPassword(value)){
+          throw new Error("That’s a baby password. Level up.")
+        }
+      }
     },
     age: {
       type: Number,
@@ -39,6 +50,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg",
+        validate(value){
+        if(!validator.isURL(value)){
+          throw new Error("You just sent a ghost URL")
+        }
+      }
     },
     about: {
       type: String,
